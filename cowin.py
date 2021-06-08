@@ -22,7 +22,7 @@ OTP_SITE_URL = None
 OTP_VALID_DURATION_SECONDS = 180
 ''' 
 Add Worker Domain here in Double Quore example : "https://db.domain.workers.dev"
-Check this :  https://github.com/truroshan/CloudflareCoWinDB
+Check this :  https://github.com/pkjmesra/CloudflareCoWinDB
 '''
 
 # scheduler = BlockingScheduler()
@@ -254,7 +254,7 @@ class CoWinBook():
         elif self.otp == 's':
 
             if OTP_SITE_URL is None:
-                raise Exception("First Setup DB on Cloudflare \nhttps://github.com/truroshan/CloudflareCoWinDB ")
+                raise Exception("First Setup DB on Cloudflare \nhttps://github.com/pkjmesra/CloudflareCoWinDB ")
 
             res = requests.get(f"{OTP_SITE_URL}/{self.mobile_no}").json()
                 

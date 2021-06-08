@@ -25,7 +25,7 @@ https://user-images.githubusercontent.com/45506201/120487245-6bdb9300-c3d3-11eb-
 
    - Step 3 : Clone repo 
 
-         git clone https://github.com/truroshan/cowin-termux.git
+         git clone https://github.com/pkjmesra/cowin-termux.git
         
    - Step 4 : Open Cloned Folder
         
@@ -40,7 +40,7 @@ https://user-images.githubusercontent.com/45506201/120487245-6bdb9300-c3d3-11eb-
       - Install Termux:API [FDroid](https://f-droid.org/en/packages/com.termux.api/).
           
     - SiteMode (`s`) :  Fetch OTP from Database Hosted on Cloudflare Worker
-      - setup Database on [Cloudflare.](https://github.com/truroshan/CloudflareCoWinDB)
+      - setup Database on [Cloudflare.](https://github.com/pkjmesra/CloudflareCoWinDB)
       - Install Automatically forward SMS to your PC/phone App. [Playstore](https://play.google.com/store/apps/details?id=com.gawk.smsforwarder)
     - ManualMode (`m`) : Input method
 
