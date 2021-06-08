@@ -42,10 +42,16 @@ class CoWinBook():
         dose = 1, # --d
         otp = 'a',  # --o
         time = 30, # --t
-        bookToday = 1, # --b
+        bookToday = False, # --b
         fee_type = "BOTH", # --f
-        relogin = None  # --r
+        relogin = None,  # --r
+        lookup_date = datetime.now().strftime("%d-%m-%Y"), # --l
+        goDebug = False # --g
         ):
+
+        self.goDebug = goDebug
+        if self.goDebug:
+            print(locals())
 
         self.mobile_no = str(mobile_no)
         if relogin and os.path.exists(self.mobile_no): os.remove(self.mobile_no)
@@ -56,7 +62,7 @@ class CoWinBook():
 
         # Include today session for Booking Slot
         self.bookToday =  0 if bookToday is True else 1
-
+        self.lookup_date = datetime.strptime(lookup_date, '%d-%m-%Y')
 
         self.center_id = []  # Selected Vaccination Centers
         self.user_id = []  # Selected Users for Vaccination 
@@ -87,7 +93,10 @@ class CoWinBook():
         # Token Recieved from CoWIN
         self.bearerToken = None  # Session Token
 
-        self.todayDate = datetime.now().strftime("%d-%m-%Y")
+        if self.bookToday == 0:
+            self.todayDate = datetime.now().strftime("%d-%m-%Y")
+        else:
+            self.todayDate = self.lookup_date.strftime("%d-%m-%Y")
 
         # Login and Save Token in file( filename same as mobile no)
         self.getSession()
@@ -103,7 +112,7 @@ class CoWinBook():
         # Selecting Center and User
         self.setup_details()
 
-        bottomBanner =  "for Today and Day After 📆 ..." if self.bookToday == 0 else "for Tomorrow and Day After 📆 ..."
+        bottomBanner =  "For " + self.todayDate + " and Day After 📆 ..."
         print(f" 📍 {self.pin} 💉 {age}+ ⌛️ {TIME} Seconds")
         print(f" 📲 XXXX{self.mobile_no[7:]} 💉 {self.vaccine} (Dose :{self.dose})")
         print(f"CoWin Auto Slot Booking 🔃\n{bottomBanner}")
@@ -326,8 +335,7 @@ class CoWinBook():
                     BOOKED = self.book_slot()
                     if BOOKED:
                         # scheduler.shutdown(wait=False)
-                        print("Shutting Down CoWin Script 👩‍💻 ")
-                        exit()
+                        self.shutting_down()
 
     # Get Solved Captcha in String
     def get_captcha(self):
@@ -438,6 +446,8 @@ class CoWinBook():
         return index
 
     def fetch_center(self):
+        if self.goDebug:
+            print(f'Fetching centers for date:' + str(self.todayDate))
         if self.checkByPincode:
             response = self.session.get(
                 f'https://cdn-api.co-vin.in/api/v2/appointment/sessions/calendarByPin?pincode={self.pin}&date={self.todayDate}'
@@ -452,10 +462,10 @@ class CoWinBook():
     def select_center(self):
         response = self.fetch_center()
 
-        while response.status_code != 200:
-            print(f'Trying to fetch center detail. Please wait...')
+        while response.status_code != 200 or not response.json().get('centers'):
+            print(f''+datetime.now().strftime("%H:%M:%S") + ':No center found. Trying again...')
             self.set_cursor()
-            time.sleep(5)
+            time.sleep(TIME)
             response = self.fetch_center()
         clear_screen()
         response = response.json()
@@ -465,8 +475,7 @@ class CoWinBook():
         
         if not response.get('centers'):
             print("No Centers Available at this location")
-            print("Shutting Down CoWin Script 👩‍💻 ")
-            exit()
+            self.shutting_down()
 
         print(f"Select Vaccination Center ({self.pin}) 💉 \n")
 
@@ -492,13 +501,12 @@ class CoWinBook():
             # clear_screen()
             print(f"No {self.age}+ Centers available at this time.\nVaccine Type : {self.vaccine} 💉  Fee Type : ({self.vacc_fee_type}).")
             line_break()
-            print(f"If you still want to book slot 😌.")
+            print(f"If you still want to book a slot 😌.")
             print(f"**Script will book at any center in this pin({self.pin}) 📍 ")
-            yes = input("\nPress📲 Y(enter)/N: ")
-            if yes.upper() == "N":
-                self.shutting_down()
-                exit()
+            yes = input("\nPress📲 Y (book at any center) / N (continue to search): ")
             clear_screen()
+            if yes.upper() == "N":
+                self.select_center()
             return
 
         print()
@@ -566,7 +574,6 @@ class CoWinBook():
             # clear_screen()
             print(f"No beneficiaries available for Dose {self.dose}.")
             self.shutting_down()
-            exit()
 
         print()
         line_break()
@@ -596,6 +603,7 @@ class CoWinBook():
 
     def shutting_down(self):
         print("Shutting Down CoWin Script 👩‍💻 ")
+        exit()
 
     def set_cursor(self):
         sys.stdout.write("\033[F")
