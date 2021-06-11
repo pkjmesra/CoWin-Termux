@@ -212,7 +212,7 @@ class CoWinBook():
             otp_fetching_mode = "Manual Mode"
 
         print(f"OTP Sent ({otp_fetching_mode}) 📲 ... ")
-
+        self.set_cursor()
         otp = ""
 
         try:    
@@ -231,7 +231,8 @@ class CoWinBook():
                 diff = (d2 - d1).total_seconds()
                 if (curr_msg_body != last_msg_body and "cowin" in last_msg_body.lower()) or diff <= OTP_VALID_DURATION_SECONDS:
                     otp = re.findall("(\d{6})",last_msg_body)[0]
-                    print("\nOTP Recieved : ",otp)
+                    print(f"OTP Received : ",otp)
+                    self.set_cursor()
                     break
 
                 time.sleep(1)
